@@ -1,0 +1,18 @@
+[project]
+name = "secrets-manager"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.40.25",
+    "python-dotenv>=1.1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+suenv = "secrets_manager.cli.upload:upload_env"
+sfenv = "secrets_manager.cli.fetch:fetch_env"
+sdenv = "secrets_manager.cli.delete:delete_env"
