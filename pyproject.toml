@@ -6,7 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.40.25",
-    "python-dotenv>=1.1.1",
+    "cryptography>=46.0.3",
+    "python-dotenv>=1.2.1",
 ]
 
 [tool.setuptools.packages.find]
