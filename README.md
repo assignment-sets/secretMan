@@ -20,10 +20,10 @@ If you just want to install and use the Secrets Manager CLI:
 1. Run the cross-platform automated installer script:
 
    ```bash
-   python -c "$(curl -fsSL https://raw.githubusercontent.com/assignment-sets/secretMan/main/scripts/install.py)"
+   python3 -c "$(curl -fsSL https://raw.githubusercontent.com/assignment-sets/secretMan/master/scripts/install.py)"
    ```
 
-   _(Alternatively, clone this repository and run `python scripts/install.py`)_.
+   _(Alternatively, clone this repository and run `python3 scripts/install.py`)_.
 
 2. The installer will:
    - Setup standard dependencies (like `pipx`).
@@ -32,6 +32,16 @@ If you just want to install and use the Secrets Manager CLI:
    - Interactively prompt you for S3 keys and automatically create the global configuration file (`~/.secrets-manager/.env`).
 
 Once installed, you can run S3 secrets sync commands (`suenv`, `sfenv`, `sdenv`) from any repository folder.
+
+### 🗑️ Teardown / Uninstallation
+
+To cleanly remove Secrets Manager, global CLI registrations, and the S3 credentials configuration folder, run:
+
+```bash
+python3 -c "$(curl -fsSL https://raw.githubusercontent.com/assignment-sets/secretMan/master/scripts/uninstall.py)"
+```
+
+_(Alternatively, run `python3 scripts/uninstall.py` from a cloned directory)_
 
 ---
 
