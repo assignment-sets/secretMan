@@ -46,17 +46,18 @@ def get_password():
     return password
 
 
-def get_fernet(password: str) -> Fernet:
+def get_fernet(password: str, salt: bytes = None) -> Fernet:
     """Derive a Fernet key from the password."""
     password_bytes = password.encode()
-    salt_raw = os.getenv("FERNET_SALT")
-    
-    if salt_raw is None:
-        print("❌ Error: FERNET_SALT not found in environment variables.")
-        print("Tip: Run 'export FERNET_SALT=your_salt' or add it to ~/.bashrc")
-        sys.exit(1)
+    if salt is None:
+        salt_raw = os.getenv("FERNET_SALT")
+        
+        if salt_raw is None:
+            print("❌ Error: FERNET_SALT not found in environment variables.")
+            print("Tip: Run 'export FERNET_SALT=your_salt' or add it to ~/.bashrc")
+            sys.exit(1)
 
-    salt = salt_raw.encode()
+        salt = salt_raw.encode()
 
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),

@@ -1,5 +1,6 @@
 # src/secrets_manager/cli/delete.py
 import sys
+import base64
 from cryptography.fernet import InvalidToken
 from secrets_manager.utils.aws_client import get_s3_client, get_bucket_name
 from secrets_manager.utils.helpers import (
@@ -23,9 +24,18 @@ def delete_env(repo_url=None):
         response = s3.get_object(Bucket=bucket, Key=key)
         encrypted_content = response["Body"].read()
 
+        # Extract salt from S3 metadata
+        metadata = response.get("Metadata", {})
+        salt_b64 = metadata.get("salt")
+        if salt_b64:
+            salt = base64.b64decode(salt_b64)
+        else:
+            print("⚠️ Legacy object detected (no salt metadata). Falling back to local FERNET_SALT...")
+            salt = None
+
         # 2. Get password and attempt to decrypt
         password = get_password()
-        fernet = get_fernet(password)
+        fernet = get_fernet(password, salt)
 
         try:
             fernet.decrypt(encrypted_content)

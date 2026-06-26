@@ -8,6 +8,7 @@ from secrets_manager.utils.helpers import (
     get_fernet,
 )
 import os
+import base64
 
 
 def upload_env():
@@ -20,7 +21,9 @@ def upload_env():
         return
 
     password = get_password()
-    fernet = get_fernet(password)
+    salt = os.urandom(16)
+    salt_b64 = base64.b64encode(salt).decode("utf-8")
+    fernet = get_fernet(password, salt)
 
     with open(env_path, "rb") as f:
         raw_data = f.read()
@@ -32,6 +35,7 @@ def upload_env():
         Bucket=get_bucket_name(),
         Key=key,
         Body=encrypted_data,
+        Metadata={"salt": salt_b64},
     )
     print(f"✅ Uploaded .env for {repo_url} (S3 key: {key})")
 
