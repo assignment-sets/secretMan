@@ -49,6 +49,9 @@ secretMan/
 ├── pyproject.toml              # Project dependencies & CLI entrypoints configuration
 ├── uv.lock                     # Lockfile for reproducible environment setup
 ├── AGENT.md                    # This onboarding guide
+├── scripts/
+│   ├── install.py              # Cross-platform installation and S3 config setup 
+│   └── uninstall.py            # Clean uninstallation and config removal script
 ├── src/
 │   └── secrets_manager/
 │       ├── __init__.py
@@ -66,17 +69,56 @@ secretMan/
 
 ---
 
-## 🔑 Onboarding Configuration Requirements
+## 🔑 Onboarding & Setup
 
-To run this tool, you must configure your S3 credentials and salt values. You can define them in two ways:
-1.  **Globally (Recommended)**: Create a folder at `~/.secrets-manager/` and write a `.env` file inside it containing the keys.
-2.  **Locally (Fallback)**: Create a `.env` file in the current working directory.
+You can set up the tool automatically using the provided installation script, or manually.
 
-The keys to define are:
-*   `AWS_ACCESS_KEY` & `AWS_SECRET_ACCESS_KEY`: Credentials for AWS S3 access.
-*   `AWS_DEFAULT_REGION`: S3 bucket region.
-*   `AWS_S3_BUCKET_NAME`: Target S3 bucket.
-*   `FERNET_SALT` *(Optional fallback)*: Used only to decrypt older files that lack embedded salt metadata.
+### 1. Automatic Setup (Recommended)
+
+Run the cross-platform setup script to check dependencies, globally install the CLI tool, and interactively configure S3 keys:
+
+```bash
+python scripts/install.py
+```
+
+### 2. Manual Setup
+
+If you prefer to configure manually:
+
+1. Register CLI tools globally: `pipx install .`
+2. Create the configuration directory at `~/.secrets-manager/`.
+3. Create a `.env` file inside it containing the following keys (or configure them as local project fallback `.env` keys):
+   - `AWS_ACCESS_KEY` & `AWS_SECRET_ACCESS_KEY`: Credentials for AWS S3 access.
+   - `AWS_DEFAULT_REGION`: S3 bucket region.
+   - `AWS_S3_BUCKET_NAME`: Target S3 bucket.
+   - `FERNET_SALT` _(Optional fallback)_: Used only to decrypt older files that lack embedded salt metadata.
+
+### 🗑️ Teardown / Uninstallation
+
+To cleanly remove all global CLI packages and wipe your local `~/.secrets-manager/` folder:
+
+```bash
+python scripts/uninstall.py
+```
+
+---
+
+## ⚙️ Configuration Resolution Hierarchy
+
+When executing commands, the Secrets Manager CLI resolves its S3 storage credentials and keys from three potential sources. To prevent mixing environment contexts, the priority is strictly resolved in the following order:
+
+```mermaid
+graph TD
+    A[1. Active Shell Environment] -->|Overrides| B[2. Global Config File]
+    B -->|Fallback| C[3. Local Project .env]
+```
+
+1.  **Active Shell Environment Variables (Priority 1 - Highest)**:
+    *   Standard shell-exported keys (like `AWS_ACCESS_KEY` or `AWS_S3_BUCKET_NAME`) take absolute precedence. This allows direct integration with global AWS profiles and variables set in your `~/.bashrc` / `~/.zshrc`.
+2.  **Global Configuration File (Priority 2 - Medium)**:
+    *   Stored in `~/.secrets-manager/.env`. If shell variables are not present, keys are retrieved from here. This allows global CLI access without duplicating keys in project directories.
+3.  **Local Project File (Priority 3 - Lowest)**:
+    *   Stored in `.env` in the current working directory. Used as a fallback if the global config file is missing.
 
 ---
 
