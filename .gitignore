@@ -1,12 +1,27 @@
-# Python-generated files
+# Python bytecode & cache
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+
+# Distribution / Build artifacts (from setuptools & pipx builds)
 build/
 dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
-.env
 *.egg-info/
+.eggs/
+
+# Modern Package Managers (Since you use uv)
+.uv/
+uv.lock
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Configuration & Local Secrets
+.env
+.secrets-manager/
+
+# System-specific junk
+.DS_Store
+Thumbs.db
