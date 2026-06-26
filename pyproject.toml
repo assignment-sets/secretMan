@@ -1,7 +1,7 @@
 [project]
 name = "secrets-manager"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "A secure, zero-knowledge CLI to encrypt and sync env files with S3"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
