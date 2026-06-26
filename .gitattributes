@@ -1,0 +1,16 @@
+# Enforce auto-normalization of line endings for all text files
+* text=auto
+
+# Force Python source files to use LF line endings (required for clean execution)
+*.py text eol=lf
+
+# Force shell scripts and configurations to use LF line endings
+*.sh text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+pyproject.toml text eol=lf
+.env.example text eol=lf
+uv.lock text eol=lf
+
+# Allow Markdown documentation to use native OS line endings
+*.md text
