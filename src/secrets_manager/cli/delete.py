@@ -1,6 +1,7 @@
 # src/secrets_manager/cli/delete.py
-import sys
+import argparse
 import base64
+import sys
 from cryptography.fernet import InvalidToken
 from secrets_manager.utils.aws_client import get_s3_client, get_bucket_name
 from secrets_manager.utils.helpers import (
@@ -11,9 +12,37 @@ from secrets_manager.utils.helpers import (
 )
 
 
-def delete_env(repo_url=None):
-    if repo_url is None:
-        repo_url = get_repo_url()
+def delete_env():
+    parser = argparse.ArgumentParser(
+        description="Verify master password and delete environment secrets from S3."
+    )
+    parser.add_argument(
+        "-r", "--repo",
+        help="Git repository URL (default: auto-detected from local git remote)"
+    )
+    parser.add_argument(
+        "-y", "--yes",
+        action="store_true",
+        help="Skip confirmation prompt before deleting"
+    )
+    args = parser.parse_args()
+
+    # Resolve repository URL
+    repo_url = args.repo
+    if not repo_url:
+        try:
+            repo_url = get_repo_url()
+        except Exception as e:
+            print(f"❌ Error: {e}")
+            print("Tip: Run inside a git repository or supply the repository URL via --repo / -r flag.")
+            return
+
+    # Deletion safety prompt
+    if not args.yes:
+        confirm = input(f"⚠️ Are you sure you want to permanently delete secrets for {repo_url}? [y/N]: ").strip().lower()
+        if confirm not in ("y", "yes"):
+            print("❌ Delete aborted.")
+            return
 
     key = hash_repo_url(repo_url)
     s3 = get_s3_client()
@@ -59,5 +88,4 @@ def delete_env(repo_url=None):
 
 
 if __name__ == "__main__":
-    repo_url = sys.argv[1] if len(sys.argv) > 1 else None
-    delete_env(repo_url)
+    delete_env()
