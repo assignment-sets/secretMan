@@ -32,10 +32,43 @@ def get_env_path():
     """Return absolute path to .env in current working directory."""
     return os.path.join(os.getcwd(), ".env")
 
+def normalize_repo_url(repo_url: str) -> str:
+    """
+    Extracts the unique 'owner/repo' identifier from any Git/GitHub URL.
+    """
+    cleaned = repo_url.strip()
+    if cleaned.endswith(".git"):
+        cleaned = cleaned[:-4]
+    cleaned = cleaned.rstrip("/")
+
+    # Already in 'owner/repo' format without protocol or host
+    if "/" in cleaned and ":" not in cleaned and "://" not in cleaned:
+        parts = cleaned.split("/")
+        if len(parts) == 2:
+            return f"{parts[0]}/{parts[1]}"
+
+    # SSH format (e.g., git@github.com:owner/repo)
+    if ":" in cleaned and not cleaned.startswith("http") and not cleaned.startswith("git://"):
+        parts = cleaned.rsplit(":", 1)
+        if len(parts) == 2:
+            path = parts[1]
+            path_parts = path.split("/")
+            if len(path_parts) >= 2:
+                return f"{path_parts[-2]}/{path_parts[-1]}"
+
+    # HTTP/HTTPS/Git protocols
+    if "/" in cleaned:
+        path_parts = cleaned.split("/")
+        if len(path_parts) >= 2:
+            return f"{path_parts[-2]}/{path_parts[-1]}"
+
+    return cleaned
+
 
 def hash_repo_url(repo_url: str) -> str:
-    """Return a SHA-1 hash of the repo URL (safe for S3 keys)."""
-    return hashlib.sha1(repo_url.encode("utf-8")).hexdigest()
+    """Return a SHA-1 hash of the normalized owner/repo identifier."""
+    normalized = normalize_repo_url(repo_url)
+    return hashlib.sha1(normalized.encode("utf-8")).hexdigest()
 
 
 def get_password():
