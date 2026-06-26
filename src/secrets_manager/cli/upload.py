@@ -55,14 +55,19 @@ def upload_env():
 
     encrypted_data = fernet.encrypt(raw_data)
 
-    s3 = get_s3_client()
-    s3.put_object(
-        Bucket=get_bucket_name(),
-        Key=key,
-        Body=encrypted_data,
-        Metadata={"salt": salt_b64},
-    )
-    print(f"✅ Uploaded {os.path.basename(env_path)} for {repo_url} (S3 key: {key})")
+    try:
+        s3 = get_s3_client()
+        bucket = get_bucket_name()
+        s3.put_object(
+            Bucket=bucket,
+            Key=key,
+            Body=encrypted_data,
+            Metadata={"salt": salt_b64},
+        )
+        print(f"✅ Uploaded {os.path.basename(env_path)} for {repo_url} (S3 key: {key})")
+    except Exception as e:
+        print(f"❌ Error uploading env file: {e}")
+        return
 
 
 if __name__ == "__main__":

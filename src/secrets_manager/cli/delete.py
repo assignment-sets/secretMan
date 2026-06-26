@@ -45,10 +45,9 @@ def delete_env():
             return
 
     key = hash_repo_url(repo_url)
-    s3 = get_s3_client()
-    bucket = get_bucket_name()
-
     try:
+        s3 = get_s3_client()
+        bucket = get_bucket_name()
         # 1. Download the encrypted payload from S3
         response = s3.get_object(Bucket=bucket, Key=key)
         encrypted_content = response["Body"].read()

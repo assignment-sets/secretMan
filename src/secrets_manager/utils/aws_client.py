@@ -1,9 +1,13 @@
 # aws_client.py
 import boto3
 import os
-from dotenv import load_dotenv
+# Define the global config path
+global_config_path = os.path.join(os.path.expanduser("~"), ".secrets-manager", ".env")
 
-load_dotenv()
+if os.path.exists(global_config_path):
+    load_dotenv(global_config_path)
+else:
+    load_dotenv()
 
 def get_s3_client():
     """

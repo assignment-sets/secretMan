@@ -68,12 +68,15 @@ secretMan/
 
 ## 🔑 Onboarding Configuration Requirements
 
-To run this tool, you must configure the following environment variables (usually stored in your local system environment or a global configuration space):
+To run this tool, you must configure your S3 credentials and salt values. You can define them in two ways:
+1.  **Globally (Recommended)**: Create a folder at `~/.secrets-manager/` and write a `.env` file inside it containing the keys.
+2.  **Locally (Fallback)**: Create a `.env` file in the current working directory.
 
-- `AWS_ACCESS_KEY` & `AWS_SECRET_ACCESS_KEY`: Credentials for AWS S3 access.
-- `AWS_DEFAULT_REGION`: S3 bucket region.
-- `AWS_S3_BUCKET_NAME`: Target S3 bucket.
-- `FERNET_SALT` _(Optional fallback)_: Used only to decrypt older files that lack embedded salt metadata.
+The keys to define are:
+*   `AWS_ACCESS_KEY` & `AWS_SECRET_ACCESS_KEY`: Credentials for AWS S3 access.
+*   `AWS_DEFAULT_REGION`: S3 bucket region.
+*   `AWS_S3_BUCKET_NAME`: Target S3 bucket.
+*   `FERNET_SALT` *(Optional fallback)*: Used only to decrypt older files that lack embedded salt metadata.
 
 ---
 

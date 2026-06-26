@@ -9,8 +9,13 @@ from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+# Define the global config path
+global_config_path = os.path.join(os.path.expanduser("~"), ".secrets-manager", ".env")
 
-load_dotenv()
+if os.path.exists(global_config_path):
+    load_dotenv(global_config_path)
+else:
+    load_dotenv()
 
 
 def get_repo_url():
