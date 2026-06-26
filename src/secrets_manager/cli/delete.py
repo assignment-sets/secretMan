@@ -1,11 +1,12 @@
 # src/secrets_manager/cli/delete.py
 import sys
+from cryptography.fernet import InvalidToken
 from secrets_manager.utils.aws_client import get_s3_client, get_bucket_name
 from secrets_manager.utils.helpers import (
     get_repo_url,
     hash_repo_url,
     get_password,
-    get_verify_hash,
+    get_fernet,
 )
 
 
@@ -18,25 +19,26 @@ def delete_env(repo_url=None):
     bucket = get_bucket_name()
 
     try:
-        # 1. Fetch metadata to get the stored hash
-        response = s3.head_object(Bucket=bucket, Key=key)
-        stored_hash = response.get("Metadata", {}).get("verify-hash")
+        # 1. Download the encrypted payload from S3
+        response = s3.get_object(Bucket=bucket, Key=key)
+        encrypted_content = response["Body"].read()
 
-        if not stored_hash:
-            print("⚠️ No password metadata found. Deleting without verification...")
-        else:
-            # 2. Verify password
-            password = get_password()
-            input_hash = get_verify_hash(password)
+        # 2. Get password and attempt to decrypt
+        password = get_password()
+        fernet = get_fernet(password)
 
-            if input_hash != stored_hash:
-                print("❌ Incorrect password. Delete aborted.")
-                return
+        try:
+            fernet.decrypt(encrypted_content)
+        except InvalidToken:
+            print("❌ Incorrect password. Delete aborted.")
+            return
 
-        # 3. Proceed with deletion
+        # 3. If decryption succeeds, proceed with deletion
         s3.delete_object(Bucket=bucket, Key=key)
         print(f"✅ Deleted .env for {repo_url}")
 
+    except s3.exceptions.NoSuchKey:
+        print(f"❌ No .env found in S3 for {repo_url}")
     except s3.exceptions.ClientError as e:
         if e.response["Error"]["Code"] == "404":
             print(f"❌ No .env found in S3 for {repo_url}")

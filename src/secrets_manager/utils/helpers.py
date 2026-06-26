@@ -68,7 +68,3 @@ def get_fernet(password: str) -> Fernet:
     return Fernet(key)
 
 
-def get_verify_hash(password: str) -> str:
-    """Generate a hash to store in S3 metadata for password verification."""
-    # We use a different salt or simple hash for the metadata check
-    return hashlib.sha256(password.encode()).hexdigest()

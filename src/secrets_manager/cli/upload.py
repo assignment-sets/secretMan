@@ -6,7 +6,6 @@ from secrets_manager.utils.helpers import (
     hash_repo_url,
     get_password,
     get_fernet,
-    get_verify_hash,  # Added this
 )
 import os
 
@@ -22,7 +21,6 @@ def upload_env():
 
     password = get_password()
     fernet = get_fernet(password)
-    verify_hash = get_verify_hash(password)  # Generate verification hash
 
     with open(env_path, "rb") as f:
         raw_data = f.read()
@@ -34,7 +32,6 @@ def upload_env():
         Bucket=get_bucket_name(),
         Key=key,
         Body=encrypted_data,
-        Metadata={"verify-hash": verify_hash},  # Store hash in S3 metadata
     )
     print(f"✅ Uploaded .env for {repo_url} (S3 key: {key})")
 
